@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcHub - Trending Calculators for Daily Life</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7928CA;
+            --secondary-color: #FF0080;
+            --dark-bg: #0F172A;
+            --darker-bg: #080F1E;
+            --card-bg: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(121, 40, 202, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 0, 128, 0.1) 0%, transparent 30%);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            z-index: 10;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        input, select {
+            background-color: var(--darker-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            transition: border-color 0.3s;
+            width: 100%;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(121, 40, 202, 0.2);
+        }
+        
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, opacity 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .tab-button {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+        
+        .tab-button.active {
+            background-color: rgba(121, 40, 202, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .calculator-section {
+            display: none;
+        }
+        
+        .calculator-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-box {
+            background-color: var(--darker-bg);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .divider {
+            height: 1px;
+            width: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1) 20%, 
+                rgba(255, 255, 255, 0.2) 50%, 
+                rgba(255, 255, 255, 0.1) 80%, 
+                transparent);
+            margin: 2rem 0;
+        }
+        
+        .calculator-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .nav-pill {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: rgba(121, 40, 202, 0.1);
+            color: var(--primary-color);
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--darker-bg);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <header class="mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-2">Calc<span class="gradient-text">Hub</span></h1>
+        <p class="text-gray-400 mb-6">All-in-one calculator toolkit for your daily needs</p>
+        
+        <div class="flex flex-wrap gap-2 mb-6">
+            <span class="nav-pill"><i class="fas fa-calculator mr-1"></i> 15+ Calculators</span>
+            <span class="nav-pill"><i class="fas fa-moon mr-1"></i> Dark Mode</span>
+            <span class="nav-pill"><i class="fas fa-mobile-alt mr-1"></i> Mobile-Friendly</span>
+        </div>
+        
+        <div class="divider"></div>
+    </header>
+    
+    <div class="tab-navigation flex flex-wrap gap-2 mb-6 overflow-x-auto">
+        <button class="tab-button active" data-target="finance"><i class="fas fa-chart-line mr-1"></i> Finance</button>
+        <button class="tab-button" data-target="health"><i class="fas fa-heartbeat mr-1"></i> Health</button>
+        <button class="tab-button" data-target="conversion"><i class="fas fa-exchange-alt mr-1"></i> Conversion</button>
+        <button class="tab-button" data-target="math"><i class="fas fa-square-root-alt mr-1"></i> Math</button>
+        <button class="tab-button" data-target="date"><i class="fas fa-calendar-alt mr-1"></i> Date</button>
+        <button class="tab-button" data-target="other"><i class="fas fa-tools mr-1"></i> Other</button>
+    </div>
+    
+    <!-- Finance Calculators Section -->
+    <section id="finance" class="calculator-section active">
+        <h2 class="text-2xl font-bold mb-6">Financial Calculators</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Loan Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Loan Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Loan Amount ($)</label>
+                        <input type="number" id="loanAmount" placeholder="e.g. 10000" value="10000" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Interest Rate (%)</label>
+                        <input type="number" id="loanInterest" placeholder="e.g. 5.5" value="5.5" step="0.1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Loan Term (years)</label>
+                        <input type="number" id="loanTerm" placeholder="e.g. 5" value="5" class="w-full">
+                    </div>
+                    <button id="calculateLoan" class="w-full">Calculate Payment</button>
+                    
+                    <div id="loanResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Monthly Payment: <span id="monthlyPayment" class="gradient-text">$0.00</span></p>
+                        <p>Total Interest: <span id="totalInterest">$0.00</span></p>
+                        <p>Total Payment: <span id="totalPayment">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mortgage Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-home"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Mortgage Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Home Price ($)</label>
+                        <input type="number" id="homePrice" placeholder="e.g. 300000" value="300000" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Down Payment ($)</label>
+                        <input type="number" id="downPayment" placeholder="e.g. 60000" value="60000" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Interest Rate (%)</label>
+                        <input type="number" id="mortgageInterest" placeholder="e.g. 4.5" value="4.5" step="0.1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Loan Term (years)</label>
+                        <input type="number" id="mortgageTerm" placeholder="e.g. 30" value="30" class="w-full">
+                    </div>
+                    <button id="calculateMortgage" class="w-full">Calculate Mortgage</button>
+                    
+                    <div id="mortgageResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Monthly Payment: <span id="mortgagePayment" class="gradient-text">$0.00</span></p>
+                        <p>Loan Amount: <span id="loanAmount">$0.00</span></p>
+                        <p>Total Interest: <span id="mortgageTotalInterest">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Investment Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-chart-pie"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Investment Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Initial Investment ($)</label>
+                        <input type="number" id="initialInvestment" placeholder="e.g. 1000" value="1000" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Monthly Contribution ($)</label>
+                        <input type="number" id="monthlyContribution" placeholder="e.g. 100" value="100" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Annual Return Rate (%)</label>
+                        <input type="number" id="annualReturn" placeholder="e.g. 7" value="7" step="0.1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Time Period (years)</label>
+                        <input type="number" id="investmentYears" placeholder="e.g. 10" value="10" class="w-full">
+                    </div>
+                    <button id="calculateInvestment" class="w-full">Calculate Growth</button>
+                    
+                    <div id="investmentResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Future Value: <span id="futureValue" class="gradient-text">$0.00</span></p>
+                        <p>Total Contributions: <span id="totalContributions">$0.00</span></p>
+                        <p>Interest Earned: <span id="interestEarned">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Compound Interest Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-percentage"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Compound Interest</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Principal Amount ($)</label>
+                        <input type="number" id="principal" placeholder="e.g. 5000" value="5000" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Interest Rate (%)</label>
+                        <input type="number" id="interestRate" placeholder="e.g. 5" value="5" step="0.1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Compounding Frequency</label>
+                        <select id="compoundFrequency" class="w-full">
+                            <option value="1">Annually</option>
+                            <option value="2">Semi-Annually</option>
+                            <option value="4">Quarterly</option>
+                            <option value="12" selected>Monthly</option>
+                            <option value="365">Daily</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Time (years)</label>
+                        <input type="number" id="compoundYears" placeholder="e.g. 10" value="10" class="w-full">
+                    </div>
+                    <button id="calculateCompound" class="w-full">Calculate Interest</button>
+                    
+                    <div id="compoundResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Final Amount: <span id="compoundAmount" class="gradient-text">$0.00</span></p>
+                        <p>Interest Earned: <span id="compoundInterest">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Retirement Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-umbrella-beach"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Retirement Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Current Age</label>
+                        <input type="number" id="currentAge" placeholder="e.g. 30" value="30" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Retirement Age</label>
+                        <input type="number" id="retirementAge" placeholder="e.g. 65" value="65" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Current Savings ($)</label>
+                        <input type="number" id="currentSavings" placeholder="e.g. 50000" value="50000" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Monthly Contribution ($)</label>
+                        <input type="number" id="retirementContribution" placeholder="e.g. 500" value="500" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Expected Return Rate (%)</label>
+                        <input type="number" id="retirementReturn" placeholder="e.g. 7" value="7" step="0.1" class="w-full">
+                    </div>
+                    <button id="calculateRetirement" class="w-full">Calculate Nest Egg</button>
+                    
+                    <div id="retirementResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Retirement Savings: <span id="retirementSavings" class="gradient-text">$0.00</span></p>
+                        <p>Total Contributions: <span id="retirementContributions">$0.00</span></p>
+                        <p>Interest Earned: <span id="retirementInterest">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Health Calculators Section -->
+    <section id="health" class="calculator-section">
+        <h2 class="text-2xl font-bold mb-6">Health Calculators</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- BMI Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-weight"></i></div>
+                <h3 class="text-xl font-semibold mb-4">BMI Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Height</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="heightFeet" placeholder="ft" value="5" class="w-1/2">
+                            <input type="number" id="heightInches" placeholder="in" value="10" class="w-1/2">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Weight (lbs)</label>
+                        <input type="number" id="weightLbs" placeholder="e.g. 160" value="160" class="w-full">
+                    </div>
+                    <button id="calculateBMI" class="w-full">Calculate BMI</button>
+                    
+                    <div id="bmiResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Your BMI: <span id="bmiValue" class="gradient-text">0.0</span></p>
+                        <p>Category: <span id="bmiCategory">-</span></p>
+                        <div id="bmiDetails" class="mt-2 text-sm text-gray-400"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Calorie Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-fire"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Calorie Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Gender</label>
+                        <select id="calorieGender" class="w-full">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Age</label>
+                        <input type="number" id="calorieAge" placeholder="e.g. 30" value="30" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Height</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="calorieHeightFeet" placeholder="ft" value="5" class="w-1/2">
+                            <input type="number" id="calorieHeightInches" placeholder="in" value="10" class="w-1/2">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Weight (lbs)</label>
+                        <input type="number" id="calorieWeight" placeholder="e.g. 160" value="160" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Activity Level</label>
+                        <select id="activityLevel" class="w-full">
+                            <option value="1.2">Sedentary (little or no exercise)</option>
+                            <option value="1.375">Lightly active (light exercise 1-3 days/week)</option>
+                            <option value="1.55" selected>Moderately active (moderate exercise 3-5 days/week)</option>
+                            <option value="1.725">Very active (hard exercise 6-7 days/week)</option>
+                            <option value="1.9">Extra active (very hard exercise & physical job)</option>
+                        </select>
+                    </div>
+                    <button id="calculateCalories" class="w-full">Calculate Calories</button>
+                    
+                    <div id="calorieResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Maintenance Calories: <span id="maintenanceCalories" class="gradient-text">0</span></p>
+                        <p>Weight Loss: <span id="weightLossCalories">0</span> calories/day</p>
+                        <p>Weight Gain: <span id="weightGainCalories">0</span> calories/day</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Body Fat Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-percentage"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Body Fat Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Gender</label>
+                        <select id="bodyFatGender" class="w-full">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Height</label>
+                        <div class="flex gap-2">
+                            <input type="number" id="bodyFatHeightFeet" placeholder="ft" value="5" class="w-1/2">
+                            <input type="number" id="bodyFatHeightInches" placeholder="in" value="10" class="w-1/2">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Weight (lbs)</label>
+                        <input type="number" id="bodyFatWeight" placeholder="e.g. 160" value="160" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Waist (inches)</label>
+                        <input type="number" id="waistCircumference" placeholder="e.g. 32" value="32" class="w-full">
+                    </div>
+                    <div id="neckDiv">
+                        <label class="block text-gray-400 mb-1">Neck (inches)</label>
+                        <input type="number" id="neckCircumference" placeholder="e.g. 14" value="14" class="w-full">
+                    </div>
+                    <div id="hipDiv" class="hidden">
+                        <label class="block text-gray-400 mb-1">Hip (inches)</label>
+                        <input type="number" id="hipCircumference" placeholder="e.g. 40" value="40" class="w-full">
+                    </div>
+                    <button id="calculateBodyFat" class="w-full">Calculate Body Fat</button>
+                    
+                    <div id="bodyFatResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Body Fat: <span id="bodyFatPercentage" class="gradient-text">0.0%</span></p>
+                        <p>Fat Mass: <span id="fatMass">0.0</span> lbs</p>
+                        <p>Lean Mass: <span id="leanMass">0.0</span> lbs</p>
+                        <p>Category: <span id="bodyFatCategory">-</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Conversion Calculators Section -->
+    <section id="conversion" class="calculator-section">
+        <h2 class="text-2xl font-bold mb-6">Conversion Tools</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Length Converter -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-ruler"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Length Converter</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Value</label>
+                        <input type="number" id="lengthValue" placeholder="Enter value" value="1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">From</label>
+                        <select id="lengthFrom" class="w-full">
+                            <option value="m">Meters</option>
+                            <option value="km">Kilometers</option>
+                            <option value="cm">Centimeters</option>
+                            <option value="mm">Millimeters</option>
+                            <option value="mi" selected>Miles</option>
+                            <option value="yd">Yards</option>
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">To</label>
+                        <select id="lengthTo" class="w-full">
+                            <option value="m" selected>Meters</option>
+                            <option value="km">Kilometers</option>
+                            <option value="cm">Centimeters</option>
+                            <option value="mm">Millimeters</option>
+                            <option value="mi">Miles</option>
+                            <option value="yd">Yards</option>
+                            <option value="ft">Feet</option>
+                            <option value="in">Inches</option>
+                        </select>
+                    </div>
+                    <button id="convertLength" class="w-full">Convert</button>
+                    
+                    <div id="lengthResult" class="result-box">
+                        <p class="text-lg font-semibold">Result: <span id="lengthOutput" class="gradient-text">1.609 Meters</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Weight Converter -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-weight-hanging"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Weight Converter</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Value</label>
+                        <input type="number" id="weightValue" placeholder="Enter value" value="1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">From</label>
+                        <select id="weightFrom" class="w-full">
+                            <option value="kg">Kilograms</option>
+                            <option value="g">Grams</option>
+                            <option value="mg">Milligrams</option>
+                            <option value="lb" selected>Pounds</option>
+                            <option value="oz">Ounces</option>
+                            <option value="st">Stone</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">To</label>
+                        <select id="weightTo" class="w-full">
+                            <option value="kg" selected>Kilograms</option>
+                            <option value="g">Grams</option>
+                            <option value="mg">Milligrams</option>
+                            <option value="lb">Pounds</option>
+                            <option value="oz">Ounces</option>
+                            <option value="st">Stone</option>
+                        </select>
+                    </div>
+                    <button id="convertWeight" class="w-full">Convert</button>
+                    
+                    <div id="weightResult" class="result-box">
+                        <p class="text-lg font-semibold">Result: <span id="weightOutput" class="gradient-text">0.454 Kilograms</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Temperature Converter -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-temperature-high"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Temperature Converter</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Value</label>
+                        <input type="number" id="tempValue" placeholder="Enter value" value="32" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">From</label>
+                        <select id="tempFrom" class="w-full">
+                            <option value="c">Celsius</option>
+                            <option value="f" selected>Fahrenheit</option>
+                            <option value="k">Kelvin</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">To</label>
+                        <select id="tempTo" class="w-full">
+                            <option value="c" selected>Celsius</option>
+                            <option value="f">Fahrenheit</option>
+                            <option value="k">Kelvin</option>
+                        </select>
+                    </div>
+                    <button id="convertTemp" class="w-full">Convert</button>
+                    
+                    <div id="tempResult" class="result-box">
+                        <p class="text-lg font-semibold">Result: <span id="tempOutput" class="gradient-text">0°C</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Volume Converter -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-glass-whiskey"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Volume Converter</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Value</label>
+                        <input type="number" id="volumeValue" placeholder="Enter value" value="1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">From</label>
+                        <select id="volumeFrom" class="w-full">
+                            <option value="l">Liters</option>
+                            <option value="ml">Milliliters</option>
+                            <option value="m3">Cubic Meters</option>
+                            <option value="gal" selected>US Gallons</option>
+                            <option value="qt">US Quarts</option>
+                            <option value="pt">US Pints</option>
+                            <option value="c">US Cups</option>
+                            <option value="oz">US Fluid Ounces</option>
+                            <option value="tbsp">US Tablespoons</option>
+                            <option value="tsp">US Teaspoons</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">To</label>
+                        <select id="volumeTo" class="w-full">
+                            <option value="l" selected>Liters</option>
+                            <option value="ml">Milliliters</option>
+                            <option value="m3">Cubic Meters</option>
+                            <option value="gal">US Gallons</option>
+                            <option value="qt">US Quarts</option>
+                            <option value="pt">US Pints</option>
+                            <option value="c">US Cups</option>
+                            <option value="oz">US Fluid Ounces</option>
+                            <option value="tbsp">US Tablespoons</option>
+                            <option value="tsp">US Teaspoons</option>
+                        </select>
+                    </div>
+                    <button id="convertVolume" class="w-full">Convert</button>
+                    
+                    <div id="volumeResult" class="result-box">
+                        <p class="text-lg font-semibold">Result: <span id="volumeOutput" class="gradient-text">3.785 Liters</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Area Converter -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-vector-square"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Area Converter</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Value</label>
+                        <input type="number" id="areaValue" placeholder="Enter value" value="1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">From</label>
+                        <select id="areaFrom" class="w-full">
+                            <option value="m2">Square Meters</option>
+                            <option value="km2">Square Kilometers</option>
+                            <option value="cm2">Square Centimeters</option>
+                            <option value="mm2">Square Millimeters</option>
+                            <option value="ha">Hectares</option>
+                            <option value="sqmi" selected>Square Miles</option>
+                            <option value="acre">Acres</option>
+                            <option value="sqyd">Square Yards</option>
+                            <option value="sqft">Square Feet</option>
+                            <option value="sqin">Square Inches</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">To</label>
+                        <select id="areaTo" class="w-full">
+                            <option value="m2" selected>Square Meters</option>
+                            <option value="km2">Square Kilometers</option>
+                            <option value="cm2">Square Centimeters</option>
+                            <option value="mm2">Square Millimeters</option>
+                            <option value="ha">Hectares</option>
+                            <option value="sqmi">Square Miles</option>
+                            <option value="acre">Acres</option>
+                            <option value="sqyd">Square Yards</option>
+                            <option value="sqft">Square Feet</option>
+                            <option value="sqin">Square Inches</option>
+                        </select>
+                    </div>
+                    <button id="convertArea" class="w-full">Convert</button>
+                    
+                    <div id="areaResult" class="result-box">
+                        <p class="text-lg font-semibold">Result: <span id="areaOutput" class="gradient-text">2,589,988 Square Meters</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Math Calculators Section -->
+    <section id="math" class="calculator-section">
+        <h2 class="text-2xl font-bold mb-6">Math Calculators</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Percentage Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-percent"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Percentage Calculator</h3>
+                <div class="space-y-4">
+                    <div class="text-sm text-gray-400 mb-4">
+                        Calculate percentages in different ways
+                    </div>
+                    
+                    <div class="border-b border-gray-700 pb-4">
+                        <p class="font-medium mb-2">What is X% of Y?</p>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="percentValue" placeholder="X" value="15" class="w-1/3">
+                            <span>% of</span>
+                            <input type="number" id="percentOf" placeholder="Y" value="100" class="w-1/3">
+                            <button id="calculatePercentOf" class="w-1/3">=</button>
+                        </div>
+                        <div id="percentOfResult" class="mt-2">
+                            <span class="gradient-text">15</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-b border-gray-700 pb-4 pt-2">
+                        <p class="font-medium mb-2">X is what % of Y?</p>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="isWhatPercent" placeholder="X" value="15" class="w-1/3">
+                            <span>is</span>
+                            <input type="number" id="isWhatPercentOf" placeholder="Y" value="100" class="w-1/3">
+                            <button id="calculateIsWhatPercent" class="w-1/3">=</button>
+                        </div>
+                        <div id="isWhatPercentResult" class="mt-2">
+                            <span class="gradient-text">15%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2">
+                        <p class="font-medium mb-2">X is Y% of what?</p>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="isValueOfPercent" placeholder="X" value="15" class="w-1/3">
+                            <span>is</span>
+                            <input type="number" id="isPercentValue" placeholder="Y" value="15" class="w-1/3">
+                            <button id="calculateIsValueOfPercent" class="w-1/3">=</button>
+                        </div>
+                        <div id="isValueOfPercentResult" class="mt-2">
+                            <span class="gradient-text">100</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fraction Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-divide"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Fraction Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">First Fraction</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="fraction1Num" placeholder="Numerator" value="1" class="w-1/2">
+                            <span>/</span>
+                            <input type="number" id="fraction1Den" placeholder="Denominator" value="2" class="w-1/2">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-400 mb-1">Operation</label>
+                        <select id="fractionOperation" class="w-full">
+                            <option value="add">+ Addition</option>
+                            <option value="subtract">− Subtraction</option>
+                            <option value="multiply">× Multiplication</option>
+                            <option value="divide">÷ Division</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-400 mb-1">Second Fraction</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="fraction2Num" placeholder="Numerator" value="1" class="w-1/2">
+                            <span>/</span>
+                            <input type="number" id="fraction2Den" placeholder="Denominator" value="3" class="w-1/2">
+                        </div>
+                    </div>
+                    
+                    <button id="calculateFraction" class="w-full">Calculate</button>
+                    
+                    <div id="fractionResult" class="result-box">
+                        <p class="text-lg font-semibold">Result: <span id="fractionOutput" class="gradient-text">5/6</span></p>
+                        <p>Decimal: <span id="fractionDecimal">0.833</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Scientific Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-calculator"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Scientific Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <input type="text" id="scientificDisplay" value="0" class="w-full text-right p-3 text-xl" readonly>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-2">
+                        <button class="sci-btn" data-action="clear">C</button>
+                        <button class="sci-btn" data-action="backspace">⌫</button>
+                        <button class="sci-btn" data-action="square">x²</button>
+                        <button class="sci-btn" data-action="operator" data-value="/">÷</button>
+                        
+                        <button class="sci-btn" data-action="number" data-value="7">7</button>
+                        <button class="sci-btn" data-action="number" data-value="8">8</button>
+                        <button class="sci-btn" data-action="number" data-value="9">9</button>
+                        <button class="sci-btn" data-action="operator" data-value="*">×</button>
+                        
+                        <button class="sci-btn" data-action="number" data-value="4">4</button>
+                        <button class="sci-btn" data-action="number" data-value="5">5</button>
+                        <button class="sci-btn" data-action="number" data-value="6">6</button>
+                        <button class="sci-btn" data-action="operator" data-value="-">−</button>
+                        
+                        <button class="sci-btn" data-action="number" data-value="1">1</button>
+                        <button class="sci-btn" data-action="number" data-value="2">2</button>
+                        <button class="sci-btn" data-action="number" data-value="3">3</button>
+                        <button class="sci-btn" data-action="operator" data-value="+">+</button>
+                        
+                        <button class="sci-btn" data-action="number" data-value="0">0</button>
+                        <button class="sci-btn" data-action="decimal">.</button>
+                        <button class="sci-btn" data-action="sqrt">√</button>
+                        <button class="sci-btn" data-action="equals">=</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-2 mt-2">
+                        <button class="sci-btn" data-action="sin">sin</button>
+                        <button class="sci-btn" data-action="cos">cos</button>
+                        <button class="sci-btn" data-action="tan">tan</button>
+                        <button class="sci-btn" data-action="pi">π</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Date Calculators Section -->
+    <section id="date" class="calculator-section">
+        <h2 class="text-2xl font-bold mb-6">Date Calculators</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Date Difference Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-calendar-day"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Date Difference</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Start Date</label>
+                        <input type="date" id="startDate" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">End Date</label>
+                        <input type="date" id="endDate" class="w-full">
+                    </div>
+                    <button id="calculateDateDiff" class="w-full">Calculate Difference</button>
+                    
+                    <div id="dateDiffResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Time Between: <span id="dateDiffOutput" class="gradient-text">0 days</span></p>
+                        <p>In years, months, days: <span id="dateDiffDetailed">0 years, 0 months, 0 days</span></p>
+                        <p>In business days: <span id="dateDiffBusiness">0 business days</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Date Add/Subtract Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-calendar-plus"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Date Add/Subtract</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Start Date</label>
+                        <input type="date" id="dateAddStart" class="w-full">
+                    </div>
+                    <div class="flex space-x-2">
+                        <div class="w-1/2">
+                            <label class="block text-gray-400 mb-1">Value</label>
+                            <input type="number" id="dateAddValue" placeholder="e.g. 7" value="7" class="w-full">
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-gray-400 mb-1">Unit</label>
+                            <select id="dateAddUnit" class="w-full">
+                                <option value="days" selected>Days</option>
+                                <option value="weeks">Weeks</option>
+                                <option value="months">Months</option>
+                                <option value="years">Years</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Operation</label>
+                        <select id="dateAddOperation" class="w-full">
+                            <option value="add" selected>Add</option>
+                            <option value="subtract">Subtract</option>
+                        </select>
+                    </div>
+                    <button id="calculateDateAdd" class="w-full">Calculate Date</button>
+                    
+                    <div id="dateAddResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Result Date: <span id="dateAddOutput" class="gradient-text">-</span></p>
+                        <p>Which is a: <span id="dateAddDay">-</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Age Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-user-clock"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Age Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Date of Birth</label>
+                        <input type="date" id="dobDate" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">As of Date (optional)</label>
+                        <input type="date" id="asOfDate" class="w-full">
+                        <p class="text-xs text-gray-500 mt-1">Default is today's date</p>
+                    </div>
+                    <button id="calculateAge" class="w-full">Calculate Age</button>
+                    
+                    <div id="ageResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Age: <span id="ageYears" class="gradient-text">0</span> years</p>
+                        <p>Or: <span id="ageMonths">0</span> months, <span id="ageDays">0</span> days</p>
+                        <p>Next birthday in: <span id="ageNextBirthday">0</span> days</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Other Calculators Section -->
+    <section id="other" class="calculator-section">
+        <h2 class="text-2xl font-bold mb-6">Other Useful Calculators</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Tip Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-receipt"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Tip Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Bill Amount ($)</label>
+                        <input type="number" id="billAmount" placeholder="e.g. 50.00" value="50.00" step="0.01" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Tip Percentage (%)</label>
+                        <input type="number" id="tipPercentage" placeholder="e.g. 15" value="15" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Number of People</label>
+                        <input type="number" id="numOfPeople" placeholder="e.g. 2" value="2" min="1" class="w-full">
+                    </div>
+                    <button id="calculateTip" class="w-full">Calculate Tip</button>
+                    
+                    <div id="tipResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Tip Amount: <span id="tipAmount" class="gradient-text">$0.00</span></p>
+                        <p>Total Bill: <span id="totalBill">$0.00</span></p>
+                        <p>Per Person: <span id="perPerson">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Fuel Mileage Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-gas-pump"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Fuel Mileage Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Distance Traveled</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="travelDistance" placeholder="e.g. 300" value="300" class="w-full">
+                            <select id="distanceUnit" class="w-1/3">
+                                <option value="miles" selected>Miles</option>
+                                <option value="km">Kilometers</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Fuel Used</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="fuelUsed" placeholder="e.g. 12" value="12" step="0.01" class="w-full">
+                            <select id="fuelUnit" class="w-1/3">
+                                <option value="gallons" selected>Gallons</option>
+                                <option value="liters">Liters</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Fuel Price</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="fuelPrice" placeholder="e.g. 3.50" value="3.50" step="0.01" class="w-full">
+                            <span class="w-1/3">$ per unit</span>
+                        </div>
+                    </div>
+                    <button id="calculateMileage" class="w-full">Calculate Mileage</button>
+                    
+                    <div id="mileageResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Fuel Economy: <span id="fuelEconomy" class="gradient-text">0 MPG</span></p>
+                        <p>Cost per Mile: <span id="costPerMile">$0.00</span></p>
+                        <p>Cost per 100 Miles: <span id="costPer100Miles">$0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Time Calculator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-clock"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Time Calculator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">First Time</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="hours1" placeholder="HH" min="0" max="23" value="1" class="w-1/3">
+                            <span>:</span>
+                            <input type="number" id="minutes1" placeholder="MM" min="0" max="59" value="30" class="w-1/3">
+                            <span>:</span>
+                            <input type="number" id="seconds1" placeholder="SS" min="0" max="59" value="0" class="w-1/3">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Operation</label>
+                        <select id="timeOperation" class="w-full">
+                            <option value="add" selected>Add</option>
+                            <option value="subtract">Subtract</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Second Time</label>
+                        <div class="flex items-center gap-2">
+                            <input type="number" id="hours2" placeholder="HH" min="0" max="23" value="2" class="w-1/3">
+                            <span>:</span>
+                            <input type="number" id="minutes2" placeholder="MM" min="0" max="59" value="15" class="w-1/3">
+                            <span>:</span>
+                            <input type="number" id="seconds2" placeholder="SS" min="0" max="59" value="30" class="w-1/3">
+                        </div>
+                    </div>
+                    <button id="calculateTime" class="w-full">Calculate Time</button>
+                    
+                    <div id="timeResult" class="result-box hidden">
+                        <p class="text-lg font-semibold mb-2">Result: <span id="timeOutput" class="gradient-text">00:00:00</span></p>
+                        <p>In minutes: <span id="timeInMinutes">0</span> minutes</p>
+                        <p>In seconds: <span id="timeInSeconds">0</span> seconds</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Password Generator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-key"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Password Generator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Password Length</label>
+                        <input type="range" id="pwdLength" min="8" max="32" value="16" class="w-full accent-purple-600">
+                        <div class="flex justify-between text-sm">
+                            <span>8</span>
+                            <span id="pwdLengthValue">16</span>
+                            <span>32</span>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="pwdUppercase" checked class="mr-2">
+                            <label for="pwdUppercase">Include Uppercase Letters</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="pwdLowercase" checked class="mr-2">
+                            <label for="pwdLowercase">Include Lowercase Letters</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="pwdNumbers" checked class="mr-2">
+                            <label for="pwdNumbers">Include Numbers</label>
+                        </div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="pwdSymbols" checked class="mr-2">
+                            <label for="pwdSymbols">Include Symbols</label>
+                        </div>
+                    </div>
+                    <button id="generatePassword" class="w-full">Generate Password</button>
+                    
+                    <div id="passwordResult" class="result-box">
+                        <input type="text" id="generatedPassword" class="w-full bg-gray-900 border-gray-700 mb-2" readonly value="Click to generate">
+                        <div class="flex justify-between">
+                            <button id="copyPassword" class="text-sm"><i class="fas fa-copy mr-1"></i> Copy</button>
+                            <div id="passwordStrength" class="text-sm"><i class="fas fa-shield-alt mr-1"></i> Strength: <span class="text-green-400">Strong</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Random Number Generator -->
+            <div class="card p-6">
+                <div class="calculator-icon"><i class="fas fa-random"></i></div>
+                <h3 class="text-xl font-semibold mb-4">Random Number Generator</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Minimum Value</label>
+                        <input type="number" id="randomMin" placeholder="e.g. 1" value="1" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Maximum Value</label>
+                        <input type="number" id="randomMax" placeholder="e.g. 100" value="100" class="w-full">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Number of Results</label>
+                        <input type="number" id="randomCount" placeholder="e.g. 1" value="1" min="1" max="100" class="w-full">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" id="randomUnique" class="mr-2">
+                        <label for="randomUnique">Generate Unique Numbers</label>
+                    </div>
+                    <button id="generateRandom" class="w-full">Generate Numbers</button>
+                    
+                    <div id="randomResult" class="result-box">
+                        <p class="text-lg font-semibold mb-2">Generated Number(s):</p>
+                        <div id="randomOutput" class="gradient-text text-xl">42</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="mt-12 text-center text-gray-500 text-sm">
+        <div class="divider"></div>
+        <p class="mb-2">© 2023 CalcHub | All-in-one calculator toolkit</p>
+        <p>Created with <i class="fas fa-heart text-pink-500"></i> for making calculations easier</p>
+    </footer>
+
+    <script>
+        // Tab Navigation
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.calculator-section').forEach(section => section.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                button.classList.add('active');
+                document.getElementById(button.getAttribute('data-target')).classList.add('active');
+            });
+        });
+        
+        // Set current date for date inputs
+        const today = new Date();
+        const dateString = today.toISOString().split('T')[0];
+        
+        // Setup initial dates in date calculators
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            input.value = dateString;
+        });
+        
+        // Create tomorrow date for end date in date difference calculator
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('endDate').value = tomorrow.toISOString().split('T')[0];
+        
+        // Currency formatter
+        const currencyFormatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        });
+        
+        const numberFormatter = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        });
+
+        // Loan Calculator
+        document.getElementById('calculateLoan').addEventListener('click', () => {
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const rate = parseFloat(document.getElementById('loanInterest').value) / 100 / 12;
+            const time = parseFloat(document.getElementById('loanTerm').value) * 12;
+            
+            if (principal > 0 && rate > 0 && time > 0) {
+                const x = Math.pow(1 + rate, time);
+                const monthly = (principal * x * rate) / (x - 1);
+                
+                document.getElementById('monthlyPayment').textContent = currencyFormatter.format(monthly);
+                document.getElementById('totalInterest').textContent = currencyFormatter.format(monthly * time - principal);
+                document.getElementById('totalPayment').textContent = currencyFormatter.format(monthly * time);
+                document.getElementById('loanResult').classList.remove('hidden');
+            }
+        });
+        
+        // Mortgage Calculator
+        document.getElementById('calculateMortgage').addEventListener('click', () => {
+            const homePrice = parseFloat(document.getElementById('homePrice').value);
+            const downPayment = parseFloat(document.getElementById('downPayment').value);
+            const loanAmount = homePrice - downPayment;
+            const interestRate = parseFloat(document.getElementById('mortgageInterest').value) / 100 / 12;
+            const term = parseFloat(document.getElementById('mortgageTerm').value) * 12;
+            
+            if (homePrice > 0 && downPayment >= 0 && interestRate > 0 && term > 0) {
+                const x = Math.pow(1 + interestRate, term);
+                const monthly = (loanAmount * x * interestRate) / (x - 1);
+                
+                document.getElementById('mortgagePayment').textContent = currencyFormatter.format(monthly);
+                document.getElementById('loanAmount').textContent = currencyFormatter.format(loanAmount);
+                document.getElementById('mortgageTotalInterest').textContent = currencyFormatter.format(monthly * term - loanAmount);
+                document.getElementById('mortgageResult').classList.remove('hidden');
+            }
+        });
+        
+        // Investment Calculator
+        document.getElementById('calculateInvestment').addEventListener('click', () => {
+            const principal = parseFloat(document.getElementById('initialInvestment').value);
+            const monthlyContribution = parseFloat(document.getElementById('monthlyContribution').value);
+            const annualRate = parseFloat(document.getElementById('annualReturn').value) / 100;
+            const years = parseFloat(document.getElementById('investmentYears').value);
+            
+            if (principal >= 0 && monthlyContribution >= 0 && annualRate >= 0 && years > 0) {
+                const monthlyRate = annualRate / 12;
+                const numMonths = years * 12;
+                
+                let futureValue = principal;
+                for (let i = 0; i < numMonths; i++) {
+                    futureValue = (futureValue + monthlyContribution) * (1 + monthlyRate);
+                }
+                
+                const totalContributions = principal + (monthlyContribution * numMonths);
+                const interestEarned = futureValue - totalContributions;
+                
+                document.getElementById('futureValue').textContent = currencyFormatter.format(futureValue);
+                document.getElementById('totalContributions').textContent = currencyFormatter.format(totalContributions);
+                document.getElementById('interestEarned').textContent = currencyFormatter.format(interestEarned);
+                document.getElementById('investmentResult').classList.remove('hidden');
+            }
+        });
+        
+        // Compound Interest Calculator
+        document.getElementById('calculateCompound').addEventListener('click', () => {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const rate = parseFloat(document.getElementById('interestRate').value) / 100;
+            const compoundFrequency = parseFloat(document.getElementById('compoundFrequency').value);
+            const years = parseFloat(document.getElementById('compoundYears').value);
+            
+            if (principal > 0 && rate >= 0 && compoundFrequency > 0 && years > 0) {
+                const amount = principal * Math.pow(1 + (rate / compoundFrequency), compoundFrequency * years);
+                const interest = amount - principal;
+                
+                document.getElementById('compoundAmount').textContent = currencyFormatter.format(amount);
+                document.getElementById('compoundInterest').textContent = currencyFormatter.format(interest);
+                document.getElementById('compoundResult').classList.remove('hidden');
+            }
+        });
+        
+        // Retirement Calculator
+        document.getElementById('calculateRetirement').addEventListener('click', () => {
+            const currentAge = parseInt(document.getElementById('currentAge').value);
+            const retirementAge = parseInt(document.getElementById('retirementAge').value);
+            const currentSavings = parseFloat(document.getElementById('currentSavings').value);
+            const monthlyContribution = parseFloat(document.getElementById('retirementContribution').value);
+            const annualReturn = parseFloat(document.getElementById('retirementReturn').value) / 100;
+            
+            if (currentAge >= 0 && retirementAge > currentAge && currentSavings >= 0 && monthlyContribution >= 0 && annualReturn >= 0) {
+                const yearsToRetirement = retirementAge - currentAge;
+                const monthlyRate = annualReturn / 12;
+                const numMonths = yearsToRetirement * 12;
+                
+                let futureValue = currentSavings;
+                for (let i = 0; i < numMonths; i++) {
+                    futureValue = (futureValue + monthlyContribution) * (1 + monthlyRate);
+                }
+                
+                const totalContributions = currentSavings + (monthlyContribution * numMonths);
+                const interestEarned = futureValue - totalContributions;
+                
+                document.getElementById('retirementSavings').textContent = currencyFormatter.format(futureValue);
+                document.getElementById('retirementContributions').textContent = currencyFormatter.format(totalContributions);
+                document.getElementById('retirementInterest').textContent = currencyFormatter.format(interestEarned);
+                document.getElementById('retirementResult').classList.remove('hidden');
+            }
+        });
+        
+        // BMI Calculator
+        document.getElementById('calculateBMI').addEventListener('click', () => {
+            const heightFeet = parseInt(document.getElementById('heightFeet').value);
+            const heightInches = parseInt(document.getElementById('heightInches').value);
+            const weightLbs = parseFloat(document.getElementById('weightLbs').value);
+            
+            if (heightFeet >= 0 && heightInches >= 0 && weightLbs > 0) {
+                const heightInchesTotal = (heightFeet * 12) + heightInches;
+                const bmi = (weightLbs * 703) / (heightInchesTotal * heightInchesTotal);
+                
+                let category = '';
+                let details = '';
+                
+                if (bmi < 18.5) {
+                    category = 'Underweight';
+                    details = 'A BMI under 18.5 indicates you may be underweight. Consider consulting with a healthcare provider.';
+                } else if (bmi < 25) {
+                    category = 'Normal Weight';
+                    details = 'A BMI between 18.5 and 24.9 indicates a healthy weight for your height.';
+                } else if (bmi < 30) {
+                    category = 'Overweight';
+                    details = 'A BMI between 25 and 29.9 indicates you may be overweight. Consider healthy lifestyle changes.';
+                } else {
+                    category = 'Obesity';
+                    details = 'A BMI of 30 or higher indicates obesity. Consider consulting with a healthcare provider.';
+                }
+                
+                document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+                document.getElementById('bmiCategory').textContent = category;
+                document.getElementById('bmiDetails').textContent = details;
+                document.getElementById('bmiResult').classList.remove('hidden');
+            }
+        });
+        
+        // Calorie Calculator
+        document.getElementById('calculateCalories').addEventListener('click', () => {
+            const gender = document.getElementById('calorieGender').value;
+            const age = parseInt(document.getElementById('calorieAge').value);
+            const heightFeet = parseInt(document.getElementById('calorieHeightFeet').value);
+            const heightInches = parseInt(document.getElementById('calorieHeightInches').value);
+            const weight = parseFloat(document.getElementById('calorieWeight').value);
+            const activityLevel = parseFloat(document.getElementById('activityLevel').value);
+            
+            if (age > 0 && heightFeet >= 0 && heightInches >= 0 && weight > 0) {
+                const heightInchesTotal = (heightFeet * 12) + heightInches;
+                const heightCm = heightInchesTotal * 2.54;
+                const weightKg = weight * 0.453592;
+                
+                let bmr = 0;
+                if (gender === 'male') {
+                    bmr = 88.362 + (13.397 * weightKg) + (4.799 * heightCm) - (5.677 * age);
+                } else {
+                    bmr = 447.593 + (9.247 * weightKg) + (3.098 * heightCm) - (4.330 * age);
+                }
+                
+                const maintenanceCalories = Math.round(bmr * activityLevel);
+                const weightLossCalories = Math.round(maintenanceCalories * 0.8);
+                const weightGainCalories = Math.round(maintenanceCalories * 1.15);
+                
+                document.getElementById('maintenanceCalories').textContent = maintenanceCalories;
+                document.getElementById('weightLossCalories').textContent = weightLossCalories;
+                document.getElementById('weightGainCalories').textContent = weightGainCalories;
+                document.getElementById('calorieResult').classList.remove('hidden');
+            }
+        });
+        
+        // Body Fat Calculator
+        document.getElementById('bodyFatGender').addEventListener('change', function() {
+            if (this.value === 'male') {
+                document.getElementById('neckDiv').classList.remove('hidden');
+                document.getElementById('hipDiv').classList.add('hidden');
+            } else {
+                document.getElementById('neckDiv').classList.remove('hidden');
+                document.getElementById('hipDiv').classList.remove('hidden');
+            }
+        });
+        
+        document.getElementById('calculateBodyFat').addEventListener('click', () => {
+            const gender = document.getElementById('bodyFatGender').value;
+            const heightFeet = parseInt(document.getElementById('bodyFatHeightFeet').value);
+            const heightInches = parseInt(document.getElementById('bodyFatHeightInches').value);
+            const weight = parseFloat(document.getElementById('bodyFatWeight').value);
+            const waist = parseFloat(document.getElementById('waistCircumference').value);
+            const neck = parseFloat(document.getElementById('neckCircumference').value);
+            
+            if (heightFeet >= 0 && heightInches >= 0 && weight > 0 && waist > 0 && neck > 0) {
+                const heightInchesTotal = (heightFeet * 12) + heightInches;
+                
+                let bodyFatPercentage = 0;
+                
+                if (gender === 'male') {
+                    bodyFatPercentage = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(heightInchesTotal)) - 450;
+                } else {
+                    const hip = parseFloat(document.getElementById('hipCircumference').value);
+                    if (hip > 0) {
+                        bodyFatPercentage = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(heightInchesTotal)) - 450;
+                    }
+                }
+                
+                const fatMass = (bodyFatPercentage / 100) * weight;
+                const leanMass = weight - fatMass;
+                
+                let category = '';
+                if (gender === 'male') {
+                    if (bodyFatPercentage < 6) category = 'Essential Fat';
+                    else if (bodyFatPercentage < 14) category = 'Athletic';
+                    else if (bodyFatPercentage < 18) category = 'Fitness';
+                    else if (bodyFatPercentage < 25) category = 'Average';
+                    else category = 'Obese';
+                } else {
+                    if (bodyFatPercentage < 14) category = 'Essential Fat';
+                    else if (bodyFatPercentage < 21) category = 'Athletic';
+                    else if (bodyFatPercentage < 25) category = 'Fitness';
+                    else if (bodyFatPercentage < 32) category = 'Average';
+                    else category = 'Obese';
+                }
+                
+                document.getElementById('bodyFatPercentage').textContent = bodyFatPercentage.toFixed(1) + '%';
+                document.getElementById('fatMass').textContent = fatMass.toFixed(1);
+                document.getElementById('leanMass').textContent = leanMass.toFixed(1);
+                document.getElementById('bodyFatCategory').textContent = category;
+                document.getElementById('bodyFatResult').classList.remove('hidden');
+            }
+        });
+        
+        // Length Conversion
+        const lengthConversions = {
+            m: 1,
+            km: 1000,
+            cm: 0.01,
+            mm: 0.001,
+            mi: 1609.34,
+            yd: 0.9144,
+            ft: 0.3048,
+            in: 0.0254
+        };
+        
+        document.getElementById('convertLength').addEventListener('click', () => {
+            const value = parseFloat(document.getElementById('lengthValue').value);
+            const fromUnit = document.getElementById('lengthFrom').value;
+            const toUnit = document.getElementById('lengthTo').value;
+            
+            if (value > 0) {
+                const meters = value * lengthConversions[fromUnit];
+                const result = meters / lengthConversions[toUnit];
+                
+                const displayUnit = {
+                    m: 'Meters',
+                    km: 'Kilometers',
+                    cm: 'Centimeters',
+                    mm: 'Millimeters',
+                    mi: 'Miles',
+                    yd: 'Yards',
+                    ft: 'Feet',
+                    in: 'Inches'
+                };
+                
+                document.getElementById('lengthOutput').textContent = `${numberFormatter.format(result)} ${displayUnit[toUnit]}`;
+            }
+        });
+        
+        // Weight Conversion
+        const weightConversions = {
+            kg: 1,
+            g: 0.001,
+            mg: 0.000001,
+            lb: 0.453592,
+            oz: 0.0283495,
+            st: 6.35029
+        };
+        
+        document.getElementById('convertWeight').addEventListener('click', () => {
+            const value = parseFloat(document.getElementById('weightValue').value);
+            const fromUnit = document.getElementById('weightFrom').value;
+            const toUnit = document.getElementById('weightTo').value;
+            
+            if (value > 0) {
+                const kg = value * weightConversions[fromUnit];
+                const result = kg / weightConversions[toUnit];
+                
+                const displayUnit = {
+                    kg: 'Kilograms',
+                    g: 'Grams',
+                    mg: 'Milligrams',
+                    lb: 'Pounds',
+                    oz: 'Ounces',
+                    st: 'Stone'
+                };
+                
+                document.getElementById('weightOutput').textContent = `${numberFormatter.format(result)} ${displayUnit[toUnit]}`;
+            }
+        });
+        
+        // Temperature Conversion
+        document.getElementById('convertTemp').addEventListener('click', () => {
+            const value = parseFloat(document.getElementById('tempValue').value);
+            const fromUnit = document.getElementById('tempFrom').value;
+            const toUnit = document.getElementById('tempTo').value;
+            
+            let result = 0;
+            
+            if (fromUnit === 'c') {
+                if (toUnit === 'f') {
+                    result = (value * 9/5) + 32;
+                } else if (toUnit === 'k') {
+                    result = value + 273.15;
+                } else {
+                    result = value;
+                }
+            } else if (fromUnit === 'f') {
+                if (toUnit === 'c') {
+                    result = (value - 32) * 5/9;
+                } else if (toUnit === 'k') {
+                    result = ((value - 32) * 5/9) + 273.15;
+                } else {
+                    result = value;
+                }
+            } else if (fromUnit === 'k') {
+                if (toUnit === 'c') {
+                    result = value - 273.15;
+                } else if (toUnit === 'f') {
+                    result = ((value - 273.15) * 9/5) + 32;
+                } else {
+                    result = value;
+                }
+            }
+            
+            const displaySymbol = {
+                c: '°C',
+                f: '°F',
+                k: 'K'
+            };
+            
+            document.getElementById('tempOutput').textContent = `${numberFormatter.format(result)}${displaySymbol[toUnit]}`;
+        });
+        
+        // Volume Conversion
+        const volumeConversions = {
+            l: 1,
+            ml: 0.001,
+            m3: 1000,
+            gal: 3.78541,
+            qt: 0.946353,
+            pt: 0.473176,
+            c: 0.236588,
+            oz: 0.0295735,
+            tbsp: 0.0147868,
+            tsp: 0.00492892
+        };
+        
+        document.getElementById('convertVolume').addEventListener('click', () => {
+            const value = parseFloat(document.getElementById('volumeValue').value);
+            const fromUnit = document.getElementById('volumeFrom').value;
+            const toUnit = document.getElementById('volumeTo').value;
+            
+            if (value > 0) {
+                const liters = value * volumeConversions[fromUnit];
+                const result = liters / volumeConversions[toUnit];
+                
+                const displayUnit = {
+                    l: 'Liters',
+                    ml: 'Milliliters',
+                    m3: 'Cubic Meters',
+                    gal: 'US Gallons',
+                    qt: 'US Quarts',
+                    pt: 'US Pints',
+                    c: 'US Cups',
+                    oz: 'US Fluid Ounces',
+                    tbsp: 'US Tablespoons',
+                    tsp: 'US Teaspoons'
+                };
+                
+                document.getElementById('volumeOutput').textContent = `${numberFormatter.format(result)} ${displayUnit[toUnit]}`;
+            }
+        });
+        
+        // Area Conversion
+        const areaConversions = {
+            m2: 1,
+            km2: 1000000,
+            cm2: 0.0001,
+            mm2: 0.000001,
+            ha: 10000,
+            sqmi: 2589988.11,
+            acre: 4046.86,
+            sqyd: 0.836127,
+            sqft: 0.092903,
+            sqin: 0.00064516
+        };
+        
+        document.getElementById('convertArea').addEventListener('click', () => {
+            const value = parseFloat(document.getElementById('areaValue').value);
+            const fromUnit = document.getElementById('areaFrom').value;
+            const toUnit = document.getElementById('areaTo').value;
+            
+            if (value > 0) {
+                const sqMeters = value * areaConversions[fromUnit];
+                const result = sqMeters / areaConversions[toUnit];
+                
+                const displayUnit = {
+                    m2: 'Square Meters',
+                    km2: 'Square Kilometers',
+                    cm2: 'Square Centimeters',
+                    mm2: 'Square Millimeters',
+                    ha: 'Hectares',
+                    sqmi: 'Square Miles',
+                    acre: 'Acres',
+                    sqyd: 'Square Yards',
+                    sqft: 'Square Feet',
+                    sqin: 'Square Inches'
+                };
+                
+                document.getElementById('areaOutput').textContent = `${numberFormatter.format(result)} ${displayUnit[toUnit]}`;
+            }
+        });
+        
+        // Percentage Calculator
+        document.getElementById('calculatePercentOf').addEventListener('click', () => {
+            const percent = parseFloat(document.getElementById('percentValue').value);
+            const value = parseFloat(document.getElementById('percentOf').value);
+            
+            if (!isNaN(percent) && !isNaN(value)) {
+                const result = (percent / 100) * value;
+                document.getElementById('percentOfResult').innerHTML = `<span class="gradient-text">${numberFormatter.format(result)}</span>`;
+            }
+        });
+        
+        document.getElementById('calculateIsWhatPercent').addEventListener('click', () => {
+            const num = parseFloat(document.getElementById('isWhatPercent').value);
+            const total = parseFloat(document.getElementById('isWhatPercentOf').value);
+            
+            if (!isNaN(num) && !isNaN(total) && total !== 0) {
+                const result = (num / total) * 100;
+                document.getElementById('isWhatPercentResult').innerHTML = `<span class="gradient-text">${numberFormatter.format(result)}%</span>`;
+            }
+        });
+        
+        document.getElementById('calculateIsValueOfPercent').addEventListener('click', () => {
+            const num = parseFloat(document.getElementById('isValueOfPercent').value);
+            const percent = parseFloat(document.getElementById('isPercentValue').value);
+            
+            if (!isNaN(num) && !isNaN(percent) && percent !== 0) {
+                const result = (num / (percent / 100));
+                document.getElementById('isValueOfPercentResult').innerHTML = `<span class="gradient-text">${numberFormatter.format(result)}</span>`;
+            }
+        });
+        
+        // Fraction Calculator
+        document.getElementById('calculateFraction').addEventListener('click', () => {
+            const num1 = parseInt(document.getElementById('fraction1Num').value);
+            const den1 = parseInt(document.getElementById('fraction1Den').value);
+            const num2 = parseInt(document.getElementById('fraction2Num').value);
+            const den2 = parseInt(document.getElementById('fraction2Den').value);
+            const operation = document.getElementById('fractionOperation').value;
+            
+            if (isNaN(num1) || isNaN(den1) || isNaN(num2) || isNaN(den2) || den1 === 0 || den2 === 0) {
+                return;
+            }
+            
+            let resultNum, resultDen;
+            
+            if (operation === 'add') {
+                resultNum = (num1 * den2) + (num2 * den1);
+                resultDen = den1 * den2;
+            } else if (operation === 'subtract') {
+                resultNum = (num1 * den2) - (num2 * den1);
+                resultDen = den1 * den2;
+            } else if (operation === 'multiply') {
+                resultNum = num1 * num2;
+                resultDen = den1 * den2;
+            } else if (operation === 'divide') {
+                if (num2 === 0) return; // Can't divide by zero
+                resultNum = num1 * den2;
+                resultDen = den1 * num2;
+            }
+            
+            // Simplify the fraction
+            const gcd = (a, b) => {
+                return b ? gcd(b, a % b) : a;
+            };
+            
+            const divisor = gcd(Math.abs(resultNum), resultDen);
+            resultNum = resultNum / divisor;
+            resultDen = resultDen / divisor;
+            
+            document.getElementById('fractionOutput').textContent = `${resultNum}/${resultDen}`;
+            document.getElementById('fractionDecimal').textContent = (resultNum / resultDen).toFixed(3);
+        });
+        
+        // Scientific Calculator
+        document.addEventListener('DOMContentLoaded', function() {
+            let display = document.getElementById('scientificDisplay');
+            let currentInput = '0';
+            let pendingOperation = null;
+            let previousValue = null;
+            let clearOnNextNumber = false;
+            
+            function updateDisplay() {
+                display.value = currentInput;
+            }
+            
+            document.querySelectorAll('.sci-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.getAttribute('data-action');
+                    
+                    if (action === 'number') {
+                        const digit = this.getAttribute('data-value');
+                        if (currentInput === '0' || clearOnNextNumber) {
+                            currentInput = digit;
+                            clearOnNextNumber = false;
+                        } else {
+                            currentInput += digit;
+                        }
+                    } else if (action === 'decimal') {
+                        if (!currentInput.includes('.')) {
+                            currentInput += '.';
+                        }
+                    } else if (action === 'clear') {
+                        currentInput = '0';
+                        pendingOperation = null;
+                        previousValue = null;
+                    } else if (action === 'backspace') {
+                        if (currentInput.length === 1) {
+                            currentInput = '0';
+                        } else {
+                            currentInput = currentInput.slice(0, -1);
+                        }
+                    } else if (action === 'square') {
+                        const num = parseFloat(currentInput);
+                        currentInput = (num * num).toString();
+                    } else if (action === 'sqrt') {
+                        const num = parseFloat(currentInput);
+                        if (num >= 0) {
+                            currentInput = Math.sqrt(num).toString();
+                        } else {
+                            currentInput = 'Error';
+                        }
+                    } else if (action === 'sin') {
+                        const num = parseFloat(currentInput);
+                        currentInput = Math.sin(num * Math.PI / 180).toString();
+                    } else if (action === 'cos') {
+                        const num = parseFloat(currentInput);
+                        currentInput = Math.cos(num * Math.PI / 180).toString();
+                    } else if (action === 'tan') {
+                        const num = parseFloat(currentInput);
+                        currentInput = Math.tan(num * Math.PI / 180).toString();
+                    } else if (action === 'pi') {
+                        currentInput = Math.PI.toString();
+                    } else if (action === 'operator') {
+                        const operator = this.getAttribute('data-value');
+                        
+                        if (previousValue !== null && pendingOperation !== null && !clearOnNextNumber) {
+                            const result = calculate(previousValue, parseFloat(currentInput), pendingOperation);
+                            currentInput = result.toString();
+                        }
+                        
+                        previousValue = parseFloat(currentInput);
+                        pendingOperation = operator;
+                        clearOnNextNumber = true;
+                    } else if (action === 'equals') {
+                        if (previousValue !== null && pendingOperation !== null) {
+                            const result = calculate(previousValue, parseFloat(currentInput), pendingOperation);
+                            currentInput = result.toString();
+                            previousValue = null;
+                            pendingOperation = null;
+                            clearOnNextNumber = true;
+                        }
+                    }
+                    
+                    updateDisplay();
+                });
+            });
+            
+            function calculate(a, b, operation) {
+                switch (operation) {
+                    case '+': return a + b;
+                    case '-': return a - b;
+                    case '*': return a * b;
+                    case '/': return b !== 0 ? a / b : 'Error';
+                    default: return b;
+                }
+            }
+            
+            updateDisplay();
+        });
+        
+        // Date Difference Calculator
+        document.getElementById('calculateDateDiff').addEventListener('click', () => {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            
+            if (startDate && endDate) {
+                // Total days difference
+                const diffTime = Math.abs(endDate - startDate);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Calculate years, months, days
+                let years = endDate.getFullYear() - startDate.getFullYear();
+                let months = endDate.getMonth() - startDate.getMonth();
+                let days = endDate.getDate() - startDate.getDate();
+                
+                if (days < 0) {
+                    months--;
+                    // Get the last day of the previous month
+                    const lastMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 0);
+                    days += lastMonth.getDate();
+                }
+                
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+                
+                // Calculate business days (excluding weekends)
+                let businessDays = 0;
+                const currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    const dayOfWeek = currentDate.getDay();
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                        businessDays++;
+                    }
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                
+                document.getElementById('dateDiffOutput').textContent = `${diffDays} days`;
+                document.getElementById('dateDiffDetailed').textContent = `${years} years, ${months} months, ${days} days`;
+                document.getElementById('dateDiffBusiness').textContent = `${businessDays} business days`;
+                document.getElementById('dateDiffResult').classList.remove('hidden');
+            }
+        });
+        
+        // Date Add/Subtract Calculator
+        document.getElementById('calculateDateAdd').addEventListener('click', () => {
+            const startDate = new Date(document.getElementById('dateAddStart').value);
+            const value = parseInt(document.getElementById('dateAddValue').value);
+            const unit = document.getElementById('dateAddUnit').value;
+            const operation = document.getElementById('dateAddOperation').value;
+            
+            if (startDate && !isNaN(value)) {
+                const resultDate = new Date(startDate);
+                
+                if (operation === 'add') {
+                    if (unit === 'days') {
+                        resultDate.setDate(resultDate.getDate() + value);
+                    } else if (unit === 'weeks') {
+                        resultDate.setDate(resultDate.getDate() + (value * 7));
+                    } else if (unit === 'months') {
+                        resultDate.setMonth(resultDate.getMonth() + value);
+                    } else if (unit === 'years') {
+                        resultDate.setFullYear(resultDate.getFullYear() + value);
+                    }
+                } else {
+                    if (unit === 'days') {
+                        resultDate.setDate(resultDate.getDate() - value);
+                    } else if (unit === 'weeks') {
+                        resultDate.setDate(resultDate.getDate() - (value * 7));
+                    } else if (unit === 'months') {
+                        resultDate.setMonth(resultDate.getMonth() - value);
+                    } else if (unit === 'years') {
+                        resultDate.setFullYear(resultDate.getFullYear() - value);
+                    }
+                }
+                
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                
+                const formattedDate = `${months[resultDate.getMonth()]} ${resultDate.getDate()}, ${resultDate.getFullYear()}`;
+                const dayName = days[resultDate.getDay()];
+                
+                document.getElementById('dateAddOutput').textContent = formattedDate;
+                document.getElementById('dateAddDay').textContent = dayName;
+                document.getElementById('dateAddResult').classList.remove('hidden');
+            }
+        });
+        
+        // Age Calculator
+        document.getElementById('calculateAge').addEventListener('click', () => {
+            const dob = new Date(document.getElementById('dobDate').value);
+            let asOfDate = new Date(document.getElementById('asOfDate').value);
+            
+            if (!asOfDate || isNaN(asOfDate.getTime())) {
+                asOfDate = new Date(); // Use today if asOfDate is not provided
+            }
+            
+            if (dob && asOfDate) {
+                // Calculate age in years, months, days
+                let years = asOfDate.getFullYear() - dob.getFullYear();
+                let months = asOfDate.getMonth() - dob.getMonth();
+                let days = asOfDate.getDate() - dob.getDate();
+                
+                if (days < 0) {
+                    months--;
+                    // Get the last day of the previous month
+                    const lastMonth = new Date(asOfDate.getFullYear(), asOfDate.getMonth(), 0);
+                    days += lastMonth.getDate();
+                }
+                
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+                
+                // Calculate total months
+                const totalMonths = years * 12 + months;
+                
+                // Calculate total days
+                const diffTime = Math.abs(asOfDate - dob);
+                const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                
+                // Calculate days until next birthday
+                const nextBirthday = new Date(asOfDate.getFullYear(), dob.getMonth(), dob.getDate());
+                if (nextBirthday < asOfDate) {
+                    nextBirthday.setFullYear(nextBirthday.getFullYear() + 1);
+                }
+                const daysUntilBirthday = Math.floor((nextBirthday - asOfDate) / (1000 * 60 * 60 * 24));
+                
+                document.getElementById('ageYears').textContent = years;
+                document.getElementById('ageMonths').textContent = totalMonths;
+                document.getElementById('ageDays').textContent = totalDays;
+                document.getElementById('ageNextBirthday').textContent = daysUntilBirthday;
+                document.getElementById('ageResult').classList.remove('hidden');
+            }
+        });
+        
+        // Tip Calculator
+        document.getElementById('calculateTip').addEventListener('click', () => {
+            const billAmount = parseFloat(document.getElementById('billAmount').value);
+            const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
+            const numOfPeople = parseInt(document.getElementById('numOfPeople').value);
+            
+            if (billAmount > 0 && tipPercentage >= 0 && numOfPeople > 0) {
+                const tipAmount = billAmount * (tipPercentage / 100);
+                const totalBill = billAmount + tipAmount;
+                const perPerson = totalBill / numOfPeople;
+                
+                document.getElementById('tipAmount').textContent = currencyFormatter.format(tipAmount);
+                document.getElementById('totalBill').textContent = currencyFormatter.format(totalBill);
+                document.getElementById('perPerson').textContent = currencyFormatter.format(perPerson);
+                document.getElementById('tipResult').classList.remove('hidden');
+            }
+        });
+        
+        // Fuel Mileage Calculator
+        document.getElementById('calculateMileage').addEventListener('click', () => {
+            const distance = parseFloat(document.getElementById('travelDistance').value);
+            const distanceUnit = document.getElementById('distanceUnit').value;
+            const fuel = parseFloat(document.getElementById('fuelUsed').value);
+            const fuelUnit = document.getElementById('fuelUnit').value;
+            const price = parseFloat(document.getElementById('fuelPrice').value);
+            
+            if (distance > 0 && fuel > 0 && price >= 0) {
+                let miles, gallons;
+                
+                if (distanceUnit === 'miles') {
+                    miles = distance;
+                } else { // kilometers
+                    miles = distance * 0.621371;
+                }
+                
+                if (fuelUnit === 'gallons') {
+                    gallons = fuel;
+                } else { // liters
+                    gallons = fuel * 0.264172;
+                }
+                
+                const mpg = miles / gallons;
+                const costPerMile = (price * gallons) / miles;
+                const costPer100Miles = costPerMile * 100;
+                
+                document.getElementById('fuelEconomy').textContent = `${mpg.toFixed(2)} MPG`;
+                document.getElementById('costPerMile').textContent = `$${costPerMile.toFixed(2)}`;
+                document.getElementById('costPer100Miles').textContent = `$${costPer100Miles.toFixed(2)}`;
+                document.getElementById('mileageResult').classList.remove('hidden');
+            }
+        });
+        
+        // Time Calculator
+        document.getElementById('calculateTime').addEventListener('click', () => {
+            const hours1 = parseInt(document.getElementById('hours1').value) || 0;
+            const minutes1 = parseInt(document.getElementById('minutes1').value) || 0;
+            const seconds1 = parseInt(document.getElementById('seconds1').value) || 0;
+            
+            const hours2 = parseInt(document.getElementById('hours2').value) || 0;
+            const minutes2 = parseInt(document.getElementById('minutes2').value) || 0;
+            const seconds2 = parseInt(document.getElementById('seconds2').value) || 0;
+            
+            const operation = document.getElementById('timeOperation').value;
+            
+            // Convert to total seconds
+            const totalSeconds1 = hours1 * 3600 + minutes1 * 60 + seconds1;
+            const totalSeconds2 = hours2 * 3600 + minutes2 * 60 + seconds2;
+            
+            let resultSeconds;
+            if (operation === 'add') {
+                resultSeconds = totalSeconds1 + totalSeconds2;
+            } else {
+                resultSeconds = totalSeconds1 - totalSeconds2;
+                if (resultSeconds < 0) {
+                    resultSeconds = Math.abs(resultSeconds);
+                }
+            }
+            
+            // Convert back to hours, minutes, seconds
+            const resultHours = Math.floor(resultSeconds / 3600);
+            const resultMinutes = Math.floor((resultSeconds % 3600) / 60);
+            const resultSecondsRemaining = resultSeconds % 60;
+            
+            // Format the result
+            const formattedResult = `${resultHours.toString().padStart(2, '0')}:${resultMinutes.toString().padStart(2, '0')}:${resultSecondsRemaining.toString().padStart(2, '0')}`;
+            
+            document.getElementById('timeOutput').textContent = formattedResult;
+            document.getElementById('timeInMinutes').textContent = (resultSeconds / 60).toFixed(2);
+            document.getElementById('timeInSeconds').textContent = resultSeconds;
+            document.getElementById('timeResult').classList.remove('hidden');
+        });
+        
+        // Password Generator
+        const pwdLength = document.getElementById('pwdLength');
+        const pwdLengthValue = document.getElementById('pwdLengthValue');
+        
+        pwdLength.addEventListener('input', () => {
+            pwdLengthValue.textContent = pwdLength.value;
+        });
+        
+        document.getElementById('generatePassword').addEventListener('click', () => {
+            const length = parseInt(pwdLength.value);
+            const includeUppercase = document.getElementById('pwdUppercase').checked;
+            const includeLowercase = document.getElementById('pwdLowercase').checked;
+            const includeNumbers = document.getElementById('pwdNumbers').checked;
+            const includeSymbols = document.getElementById('pwdSymbols').checked;
+            
+            if (!includeUppercase && !includeLowercase && !includeNumbers && !includeSymbols) {
+                return;
+            }
+            
+            const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+            const numberChars = '0123456789';
+            const symbolChars = '!@#$%^&*()-_=+[{]}\\|;:\'",<.>/?`~';
+            
+            let allowedChars = '';
+            if (includeUppercase) allowedChars += uppercaseChars;
+            if (includeLowercase) allowedChars += lowercaseChars;
+            if (includeNumbers) allowedChars += numberChars;
+            if (includeSymbols) allowedChars += symbolChars;
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += allowedChars.charAt(Math.floor(Math.random() * allowedChars.length));
+            }
+            
+            document.getElementById('generatedPassword').value = password;
+            
+            // Calculate password strength
+            let strength = 'Weak';
+            let strengthClass = 'text-red-400';
+            
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumbers = /[0-9]/.test(password);
+            const hasSymbols = /[^A-Za-z0-9]/.test(password);
+            
+            const variationCount = [hasUppercase, hasLowercase, hasNumbers, hasSymbols].filter(Boolean).length;
+            
+            if (password.length >= 12 && variationCount >= 3) {
+                strength = 'Strong';
+                strengthClass = 'text-green-400';
+            } else if (password.length >= 8 && variationCount >= 2) {
+                strength = 'Medium';
+                strengthClass = 'text-yellow-400';
+            }
+            
+            document.getElementById('passwordStrength').innerHTML = `<i class="fas fa-shield-alt mr-1"></i> Strength: <span class="${strengthClass}">${strength}</span>`;
+        });
+        
+        document.getElementById('copyPassword').addEventListener('click', () => {
+            const passwordField = document.getElementById('generatedPassword');
+            passwordField.select();
+            document.execCommand('copy');
+            
+            const copyButton = document.getElementById('copyPassword');
+            const originalText = copyButton.innerHTML;
+            copyButton.innerHTML = '<i class="fas fa-check mr-1"></i> Copied!';
+            setTimeout(() => {
+                copyButton.innerHTML = originalText;
+            }, 2000);
+        });
+        
+        // Random Number Generator
+        document.getElementById('generateRandom').addEventListener('click', () => {
+            const min = parseInt(document.getElementById('randomMin').value);
+            const max = parseInt(document.getElementById('randomMax').value);
+            const count = parseInt(document.getElementById('randomCount').value);
+            const unique = document.getElementById('randomUnique').checked;
+            
+            if (isNaN(min) || isNaN(max) || isNaN(count) || min > max || count < 1) {
+                return;
+            }
+            
+            let numbers = [];
+            
+            if (unique && (max - min + 1) < count) {
+                // Not enough unique numbers available
+                document.getElementById('randomOutput').innerHTML = '<span class="text-red-400">Error: Not enough unique numbers in the range.</span>';
+                return;
+            }
+            
+            if (unique) {
+                // Generate all possible numbers in the range
+                const allNumbers = Array.from({ length: max - min + 1 }, (_, i) => min + i);
+                
+                // Shuffle and take the first 'count' numbers
+                for (let i = allNumbers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [allNumbers[i], allNumbers[j]] = [allNumbers[j], allNumbers[i]];
+                }
+                
+                numbers = allNumbers.slice(0, count);
+            } else {
+                for (let i = 0; i < count; i++) {
+                    numbers.push(Math.floor(Math.random() * (max - min + 1)) + min);
+                }
+            }
+            
+            document.getElementById('randomOutput').textContent = numbers.join(', ');
+        });
+        
+        // Initialize the first load of the conversion calculator results
+        document.getElementById('convertLength').click();
+        document.getElementById('convertWeight').click();
+        document.getElementById('convertTemp').click();
+        document.getElementById('convertVolume').click();
+        document.getElementById('convertArea').click();
+        
+        // Initialize gender-specific fields for body fat calculator
+        document.getElementById('bodyFatGender').dispatchEvent(new Event('change'));
+        
+        // Generate a random password on page load
+        document.getElementById('generatePassword').click();
+        
+        // Trigger tooltip functionality
+        document.querySelectorAll('.tooltip').forEach(tooltip => {
+            const tooltipText = tooltip.querySelector('.tooltiptext');
+            
+            tooltip.addEventListener('mouseenter', () => {
+                tooltipText.style.visibility = 'visible';
+                tooltipText.style.opacity = '1';
+            });
+            
+            tooltip.addEventListener('mouseleave', () => {
+                tooltipText.style.visibility = 'hidden';
+                tooltipText.style.opacity = '0';
+            });
+        });
+    </script>
+</body>
+</html>
